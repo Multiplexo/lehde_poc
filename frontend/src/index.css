@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/roboto";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -39,36 +39,37 @@
     --radius-2xl: calc(var(--radius) * 1.8);
 }
 
-/* Kunden-Theme: placeholder until the customer's corporate design arrives.
-   Concrete grey, dark green and an ochre accent as neutral precast look. */
+/* Kunden-Theme Lehde: Gelb/Schwarz nach www.lehde.de (Farbwerte aus einem
+   Screenshot abgenommen; mit dem Corporate-Design-Handbuch abgleichen). */
 :root {
-    --brand-font: 'Inter Variable', system-ui, sans-serif;
-    --brand: #1f3a2e;
-    --brand-foreground: #f4f1ea;
-    --brand-accent: #e8b84a;
+    --brand-font: 'Roboto Variable', system-ui, sans-serif;
+    --brand: #1d1d1b;
+    --brand-foreground: #ffffff;
+    --brand-accent: #f0b800;
+    --brand-accent-foreground: #1d1d1b;
 
-    --background: #f5f6f4;
-    --foreground: #1c2420;
+    --background: #eaeaea;
+    --foreground: #1d1d1b;
     --card: #ffffff;
-    --card-foreground: #1c2420;
+    --card-foreground: #1d1d1b;
     --popover: #ffffff;
-    --popover-foreground: #1c2420;
-    --primary: #1f3a2e;
+    --popover-foreground: #1d1d1b;
+    --primary: #1d1d1b;
     --primary-foreground: #ffffff;
-    --secondary: #eceee9;
-    --secondary-foreground: #1c2420;
-    --muted: #eceee9;
-    --muted-foreground: #5d6862;
-    --accent: #e7ece8;
-    --accent-foreground: #1c2420;
+    --secondary: #f2f2f2;
+    --secondary-foreground: #1d1d1b;
+    --muted: #f2f2f2;
+    --muted-foreground: #5f5f5f;
+    --accent: #fff4cc;
+    --accent-foreground: #1d1d1b;
     --destructive: #b42318;
-    --border: #dde1dc;
-    --input: #cfd5cf;
-    --ring: #3f6b57;
-    --radius: 0.5rem;
+    --border: #dcdcdc;
+    --input: #cccccc;
+    --ring: #c99a00;
+    --radius: 0.25rem;
 
     --ok: #2f7a4f;
-    --warn: #b7791f;
+    --warn: #a66a00;
     --critical: #b42318;
 }
 

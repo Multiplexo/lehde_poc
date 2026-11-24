@@ -89,7 +89,7 @@ export function FeedbackButton() {
 
   return <>
     <button type="button" data-feedback-ignore onClick={() => void start()} disabled={capturing}
-      className="fixed right-5 bottom-5 z-40 flex items-center gap-2 rounded-full bg-brand px-4 py-2.5 text-sm font-medium text-brand-foreground shadow-lg hover:opacity-90 disabled:opacity-60">
+      className="fixed right-5 bottom-5 z-40 flex items-center gap-2 rounded-full bg-brand-accent px-4 py-2.5 text-sm font-medium text-brand shadow-lg ring-1 ring-brand/20 hover:brightness-95 disabled:opacity-60">
       <MessageSquarePlus aria-hidden="true" className="size-4" />{capturing ? 'Screenshot …' : 'Feedback'}
     </button>
     <Dialog open={open} onOpenChange={(next) => { if (!next) close() }}>

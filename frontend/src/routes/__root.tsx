@@ -1,5 +1,6 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { FlaskConical } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 import { FeedbackButton } from '@/components/feedback-button'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { brand } from '@/lib/brand'
@@ -17,18 +18,17 @@ export const Route = createRootRoute({
 function RootLayout() {
   return (
     <TooltipProvider>
-      <header className="sticky top-0 z-30 border-b bg-brand text-brand-foreground">
-        <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-6 px-4 md:px-8">
-          <Link to="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
-            <span aria-hidden="true" className="grid size-7 place-items-center rounded-md bg-brand-accent text-sm font-bold text-brand">{brand.customer.slice(0, 1)}</span>
-            <span>{brand.customer}</span>
-            <span className="font-normal opacity-70">{brand.product}</span>
+      <header className="sticky top-0 z-30 border-b-4 border-brand-accent bg-card text-foreground shadow-sm">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-8 px-4 md:px-8">
+          <Link to="/" className="flex items-center gap-3" aria-label={`${brand.customer} ${brand.product}, zur Übersicht`}>
+            <BrandLogo />
+            <span className="text-lg font-medium text-muted-foreground">{brand.product}</span>
           </Link>
-          <nav aria-label="Hauptnavigation" className="flex items-center gap-1 text-sm">
-            <Link to="/" activeOptions={{ exact: true }} className="rounded-md px-3 py-1.5 opacity-80 hover:bg-white/10 hover:opacity-100 data-[status=active]:bg-white/15 data-[status=active]:opacity-100">Anfragepakete</Link>
-            <Link to="/feedback" className="rounded-md px-3 py-1.5 opacity-80 hover:bg-white/10 hover:opacity-100 data-[status=active]:bg-white/15 data-[status=active]:opacity-100">Feedback</Link>
+          <nav aria-label="Hauptnavigation" className="flex items-center gap-6 text-[15px]">
+            <Link to="/" activeOptions={{ exact: true }} className="py-1 text-muted-foreground hover:text-foreground data-[status=active]:font-semibold data-[status=active]:text-foreground">Anfragepakete</Link>
+            <Link to="/feedback" className="py-1 text-muted-foreground hover:text-foreground data-[status=active]:font-semibold data-[status=active]:text-foreground">Feedback</Link>
           </nav>
-          <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-brand-accent/60 px-3 py-1 text-xs text-brand-accent" title="Gesprächsinstrument zum Schärfen der Anforderungen, kein Produktivsystem">
+          <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-xs text-brand-accent" title="Gesprächsinstrument zum Schärfen der Anforderungen, kein Produktivsystem">
             <FlaskConical aria-hidden="true" className="size-3.5" />Prototyp – kein Produktivsystem
           </span>
         </div>
