@@ -7,6 +7,7 @@ quote on the rendered page.
 
 import base64
 from io import BytesIO
+from threading import Lock
 
 import pypdfium2 as pdfium
 import pytesseract
@@ -18,6 +19,9 @@ from app.models.documents import Box, PageLine, PageText
 from app.services.pipeline.gaeb import GAEB_CONTENT_TYPE, is_gaeb, read_gaeb
 
 logger = structlog.get_logger(__name__)
+
+# PDFium is not thread-safe; every use of pypdfium2 must hold this lock.
+_pdfium_lock = Lock()
 
 PDF_CONTENT_TYPE = "application/pdf"
 DOCX_CONTENT_TYPE = (
@@ -114,6 +118,13 @@ def _ocr_lines(page: pdfium.PdfPage, languages: str) -> list[PageLine]:
 def read_pdf(
     content: bytes, ocr_languages: str | None, min_text: int
 ) -> list[PageText]:
+    with _pdfium_lock:
+        return _read_pdf(content, ocr_languages, min_text)
+
+
+def _read_pdf(
+    content: bytes, ocr_languages: str | None, min_text: int
+) -> list[PageText]:
     pdf = pdfium.PdfDocument(content)
     try:
         pages: list[PageText] = []
@@ -188,6 +199,13 @@ def _to_data_url(image: Image.Image) -> str:
 
 
 def render_page_images(
+    content: bytes, page_numbers: list[int], with_title_block: bool
+) -> dict[int, list[str]]:
+    with _pdfium_lock:
+        return _render_page_images(content, page_numbers, with_title_block)
+
+
+def _render_page_images(
     content: bytes, page_numbers: list[int], with_title_block: bool
 ) -> dict[int, list[str]]:
     """Render pages for the vision model; plans also get the title block area.
