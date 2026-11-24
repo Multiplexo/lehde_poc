@@ -1,0 +1,63 @@
+# Render Blueprint: free web service and free PostgreSQL in Frankfurt (EU).
+# Secrets (API_KEY, DEMO_PASSWORD) are entered in the Render dashboard.
+services:
+  - type: web
+    name: lehde-anfragepruefung
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./deploy/render/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeploy: false
+    envVars:
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: lehde-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: lehde-db
+          property: port
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: lehde-db
+          property: database
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: lehde-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: lehde-db
+          property: password
+      - key: POSTGRES_POOL_SIZE
+        value: "3"
+      - key: POSTGRES_MAX_OVERFLOW
+        value: "2"
+      - key: LLM_BASE_URL
+        value: https://api.langdock.com/openai/eu/v1
+      - key: MODEL
+        value: gpt-6.2-sol
+      - key: API_KEY
+        sync: false
+      # Little memory on the free plan: fewer parallel model calls.
+      - key: LLM_CONCURRENCY
+        value: "2"
+      - key: STORAGE_BACKEND
+        value: database
+      - key: CORS_ORIGINS
+        value: "[]"
+      - key: DEMO_USER
+        value: lehde
+      - key: DEMO_PASSWORD
+        sync: false
+      - key: FEEDBACK_WEBHOOK_URL
+        sync: false
+
+databases:
+  - name: lehde-db
+    plan: free
+    region: frankfurt
+    databaseName: lehde
+    user: lehde

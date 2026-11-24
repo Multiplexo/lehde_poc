@@ -69,6 +69,23 @@ muss. Das Paket lässt sich neu erzeugen mit
 
 Komplett in Docker: `docker compose --profile app up -d --build`, dann Port 8080.
 
+## Kostenlos auf Render
+
+`render.yaml` legt einen kostenlosen Web-Service und eine kostenlose PostgreSQL
+in Frankfurt an (Render-Dashboard: New → Blueprint → dieses Repo). Danach im
+Dashboard `API_KEY` (Langdock) und `DEMO_PASSWORD` setzen; ohne Passwort startet
+der Container nicht. Die ganze App liegt hinter einem Login (Benutzer `lehde`).
+
+- Ein Container (`deploy/render/Dockerfile`): nginx mit Login, Frontend und API.
+- Dateien liegen in PostgreSQL (`STORAGE_BACKEND=database`), weil das
+  Dateisystem freier Instanzen bei jedem Neustart leer ist.
+- Freie Instanzen schlafen bei Inaktivität ein; der erste Aufruf danach dauert
+  rund eine Minute. Vor einer Demo die Seite einmal öffnen.
+- Die kostenlose Datenbank läuft nach einer begrenzten Zeit ab (Stand der
+  Render-Bedingungen im Dashboard prüfen). Für echte Kundendaten einen bezahlten
+  Plan und den Auftragsverarbeitungsvertrag von Render prüfen.
+- Die KI-Aufrufe kosten weiterhin Langdock-Budget.
+
 ## Kunden-Look
 
 Farben und Schrift stehen in `frontend/src/index.css` (Abschnitt „Kunden-Theme“),

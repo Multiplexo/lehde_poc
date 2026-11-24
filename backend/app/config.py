@@ -24,6 +24,8 @@ class Settings(BaseSettings):
 
     # Uploaded documents and feedback screenshots are stored below this directory.
     DATA_DIR: Path = Path("data")
+    # "database" stores files in PostgreSQL (hosts without a persistent disk).
+    STORAGE_BACKEND: Literal["filesystem", "database"] = "filesystem"
     MAX_UPLOAD_MB: int = Field(default=100, ge=1, le=1000)
     MAX_DOCUMENTS_PER_PROJECT: int = Field(default=20, ge=1, le=100)
 

@@ -7,6 +7,7 @@ from sqlmodel import SQLModel
 
 from app.persistence.chat.schema.chat_message import ChatMessageRecord
 from app.persistence.feedback.schema.feedback import FeedbackRecord
+from app.persistence.files.schema.stored_file import StoredFileRecord
 from app.persistence.lv.schema.lv_position import LvPositionRecord
 from app.persistence.projects.schema.project import DocumentRecord, ProjectRecord
 from app.persistence.subcontractors.schema.subcontractor import SubcontractorRecord
@@ -20,6 +21,7 @@ REGISTERED_MODELS = (
     LvPositionRecord,
     ChatMessageRecord,
     SubcontractorRecord,
+    StoredFileRecord,
 )
 
 target_metadata = SQLModel.metadata
