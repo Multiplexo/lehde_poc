@@ -15,8 +15,8 @@ export function OnepagerTab({ project }: { project: Project }) {
       <div className="flex flex-wrap items-center gap-3">
         <p className="text-sm text-muted-foreground">Für technisches Büro und Fertigteilabteilung. Offene Punkte kommen aus den nicht erledigten Abweichungen.</p>
         <div className="ml-auto flex gap-2">
-          <Button render={<a href={exportUrl(project.id, 'onepager.pdf')} download />}><Download aria-hidden="true" />PDF</Button>
-          <Button variant="outline" render={<a href={exportUrl(project.id, 'onepager.docx')} download />}><Download aria-hidden="true" />DOCX</Button>
+          <Button nativeButton={false} render={<a href={exportUrl(project.id, 'onepager.pdf')} download />}><Download aria-hidden="true" />PDF</Button>
+          <Button variant="outline" nativeButton={false} render={<a href={exportUrl(project.id, 'onepager.docx')} download />}><Download aria-hidden="true" />DOCX</Button>
         </div>
       </div>
       {onepager.isPending ? <Skeleton className="h-96" /> : null}

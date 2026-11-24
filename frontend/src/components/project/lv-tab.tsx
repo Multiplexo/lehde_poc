@@ -96,8 +96,8 @@ function TradeCard({ projectId, trade, active, onSelect }: { projectId: string; 
       {!trade.own_work ? (
         <div className="mt-2 space-y-1.5 border-t pt-2">
           <div className="flex flex-wrap gap-1.5">
-            <Button size="xs" variant="outline" render={<a href={lvExportUrl(projectId, trade.code)} download />}><FileSpreadsheet aria-hidden="true" />LV-Auszug</Button>
-            <Button size="xs" variant="outline" render={<a href={requestLetterUrl(projectId, trade.code)} download />}><Mail aria-hidden="true" />Anschreiben</Button>
+            <Button size="xs" variant="outline" nativeButton={false} render={<a href={lvExportUrl(projectId, trade.code)} download />}><FileSpreadsheet aria-hidden="true" />LV-Auszug</Button>
+            <Button size="xs" variant="outline" nativeButton={false} render={<a href={requestLetterUrl(projectId, trade.code)} download />}><Mail aria-hidden="true" />Anschreiben</Button>
           </div>
           {trade.suggestions.length ? (
             <ul className="space-y-1">
@@ -158,7 +158,7 @@ export function LvTab({ project }: { project: Project }) {
           <Button disabled={busy || draft.isPending || !project.analysis} onClick={() => {
             if (!hasDraft || window.confirm('Der bestehende LV-Entwurf wird ersetzt. Fortfahren?')) draft.mutate()
           }}><Sparkles aria-hidden="true" />{hasDraft ? 'LV-Entwurf neu ableiten' : 'LV-Entwurf aus Funktionalbeschreibung'}</Button>
-          <Button variant="outline" render={<a href={lvExportUrl(project.id)} download />}><Download aria-hidden="true" />Excel (alle Gewerke)</Button>
+          <Button variant="outline" nativeButton={false} render={<a href={lvExportUrl(project.id)} download />}><Download aria-hidden="true" />Excel (alle Gewerke)</Button>
         </div>
       </div>
       {error ? <p role="alert" className="text-sm text-destructive">{error.message}</p> : null}

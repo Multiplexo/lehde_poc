@@ -14,13 +14,21 @@ const examples = [
   'Welche Leistungen sind bauseits?',
 ]
 
+/** Minimal inline formatting for model answers: **bold**, no HTML injection. */
+function FormattedText({ text }: { text: string }) {
+  return <>{text.split(/(\*\*[^*]+\*\*)/g).map((part, index) =>
+    part.startsWith('**') && part.endsWith('**') && part.length > 4
+      ? <strong key={index}>{part.slice(2, -2)}</strong>
+      : <span key={index}>{part}</span>)}</>
+}
+
 function Message({ message }: { message: ChatMessage }) {
   const user = message.role === 'user'
   return (
     <li className={cn('flex', user ? 'justify-end' : 'justify-start')}>
       <div className={cn('max-w-3xl space-y-2 rounded-xl px-4 py-3 text-sm', user ? 'bg-brand text-brand-foreground' : 'border bg-card')}>
         {message.unsupported ? <p className="flex items-center gap-1.5 text-xs text-warn"><ShieldAlert aria-hidden="true" className="size-3.5" />Ohne belegtes Zitat keine Antwort</p> : null}
-        <p className="whitespace-pre-line">{message.content}</p>
+        <p className="whitespace-pre-line"><FormattedText text={message.content} /></p>
         {message.sources.length ? (
           <div className="flex flex-wrap gap-1.5 border-t pt-2">{message.sources.map((source, index) => <SourceChip key={index} source={source} label="Antwort" />)}</div>
         ) : null}

@@ -9,3 +9,4 @@ frontend/dist/
 *.tsbuildinfo
 .idea/
 .DS_Store
+.screens/

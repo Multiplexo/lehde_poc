@@ -78,9 +78,11 @@ def _evaluate(node: ast.AST) -> float:
 
 def evaluate_formula(formula: str, allowed_numbers: set[float]) -> float | None:
     """Compute a quantity; every number must come from the cited statements."""
-    normalized = re.sub(
-        r"(\d),(\d)", r"\1.\2", formula.replace("x", "*").replace("×", "*")
-    )
+    # Units and labels ("60,00 m × 25,00 m") are removed; only arithmetic stays.
+    product = re.sub(r"(?<=[\d\s])[xX×](?=[\s\d])", "*", formula)
+    cleaned = re.sub(r"[A-Za-zÄÖÜäöüß²³]+", " ", product)
+    normalized = re.sub(r"(\d)\.(\d{3})(?!\d)", r"\1\2", cleaned)
+    normalized = re.sub(r"(\d),(\d)", r"\1.\2", normalized)
     if not re.fullmatch(r"[\d.\s+\-*/()]+", normalized):
         return None
     used = {float(token) for token in re.findall(r"\d+(?:\.\d+)?", normalized)}
@@ -262,6 +264,11 @@ async def draft_lv(
     )
     positions: list[LvPosition] = []
     rejected_formulas = 0
+    # Figures may come from any verified statement of the project (e.g. the
+    # hall dimensions for a floor slab), but never from the model itself.
+    allowed_numbers = set().union(
+        *(numbers_in(f"{claim.value} {claim.source.quote}") for claim in claims)
+    )
     for item in result.positions:
         supporting = [
             by_id[claim_id] for claim_id in item.claim_ids if claim_id in by_id
@@ -274,15 +281,10 @@ async def draft_lv(
         quantity: float | None = None
         formula = (item.quantity_formula or "").strip() or None
         if formula and supporting:
-            allowed = set().union(
-                *(
-                    numbers_in(f"{claim.value} {claim.source.quote}")
-                    for claim in supporting
-                )
-            )
-            quantity = evaluate_formula(formula, allowed)
+            quantity = evaluate_formula(formula, allowed_numbers)
             if quantity is None:
                 rejected_formulas += 1
+                logger.info("draft_formula_rejected", formula=formula)
                 formula = None
         elif formula:
             formula = None

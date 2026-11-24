@@ -45,8 +45,8 @@ export function QuestionsTab({ project }: { project: Project }) {
         <div className="ml-auto flex flex-wrap gap-2">
           <Button variant="outline" onClick={add}><Plus aria-hidden="true" />Eigene Frage</Button>
           <Button onClick={persist} disabled={!dirty || save.isPending}>{save.isPending ? 'Speichern …' : 'Speichern'}</Button>
-          <Button variant="outline" disabled={dirty} render={<a href={exportUrl(project.id, 'questions.docx')} download />}><Download aria-hidden="true" />DOCX</Button>
-          <Button variant="outline" disabled={dirty} render={<a href={exportUrl(project.id, 'questions.txt')} download />}><Download aria-hidden="true" />Text</Button>
+          <Button variant="outline" disabled={dirty} nativeButton={false} render={<a href={exportUrl(project.id, 'questions.docx')} download />}><Download aria-hidden="true" />DOCX</Button>
+          <Button variant="outline" disabled={dirty} nativeButton={false} render={<a href={exportUrl(project.id, 'questions.txt')} download />}><Download aria-hidden="true" />Text</Button>
         </div>
       </div>
       {dirty ? <p role="status" className="text-xs text-warn">Ungespeicherte Änderungen – vor dem Export speichern.</p> : null}
