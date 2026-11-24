@@ -27,6 +27,8 @@ class ProjectRecord(SQLModel, table=True):
     error: str | None = Field(default=None, sa_type=Text)
     analysis: dict[str, Any] | None = Field(default=None, sa_type=JSONB)
     questions: list[dict[str, Any]] = Field(default_factory=list, sa_type=JSONB)
+    checks: list[dict[str, Any]] = Field(default_factory=list, sa_type=JSONB)
+    checks_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
 
 
 class DocumentRecord(SQLModel, table=True):

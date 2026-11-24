@@ -12,8 +12,12 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.config import get_settings
 from app.persistence.projects.project_repository import ProjectRepository
+from app.routes.assistant import router as assistant_router
 from app.routes.feedback import router as feedback_router
+from app.routes.lv import router as lv_router
+from app.routes.lv import trades_router
 from app.routes.projects import router as projects_router
+from app.routes.subcontractors import router as subcontractors_router
 from app.services.database import database_service
 
 logger = structlog.get_logger(__name__)
@@ -59,6 +63,14 @@ async def infrastructure_error(request: Request, exc: Exception) -> JSONResponse
 
 
 app.include_router(projects_router, prefix="/projects", tags=["projects"])
+app.include_router(lv_router, prefix="/projects/{project_id}/lv", tags=["lv"])
+app.include_router(
+    assistant_router, prefix="/projects/{project_id}", tags=["assistant"]
+)
+app.include_router(trades_router, prefix="/trades", tags=["lv"])
+app.include_router(
+    subcontractors_router, prefix="/subcontractors", tags=["subcontractors"]
+)
 app.include_router(feedback_router, prefix="/feedback", tags=["feedback"])
 
 

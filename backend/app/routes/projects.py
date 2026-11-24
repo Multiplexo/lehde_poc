@@ -1,5 +1,3 @@
-import re
-import unicodedata
 from typing import Annotated
 from uuid import UUID, uuid4
 
@@ -34,7 +32,6 @@ from app.models.projects import (
     Project,
     ProjectCreate,
     ProjectListItem,
-    ProjectStatus,
     QuestionsUpdate,
 )
 from app.persistence.projects.project_repository import (
@@ -43,12 +40,14 @@ from app.persistence.projects.project_repository import (
     project_analysis,
 )
 from app.persistence.projects.schema.project import ProjectRecord
+from app.routes.common import DOCX_MEDIA_TYPE, download, ensure_idle, slug
 from app.services import exports, storage
 from app.services.onepager import build_onepager
 from app.services.pipeline.conversion import (
     SUPPORTED_CONTENT_TYPES,
     detect_content_type,
 )
+from app.services.pipeline.gaeb import GAEB_CONTENT_TYPE
 from app.services.pipeline.questions import sync_discrepancy_question
 from app.services.pipeline.runner import (
     document_names,
@@ -59,30 +58,6 @@ from app.services.pipeline.runner import (
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
-
-DOCX_MEDIA_TYPE = (
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-)
-
-
-def _ensure_idle(project: ProjectRecord) -> None:
-    if project.status == ProjectStatus.PROCESSING.value:
-        raise HTTPException(
-            status.HTTP_409_CONFLICT, "Die Analyse läuft gerade. Bitte warten."
-        )
-
-
-def _slug(text: str) -> str:
-    ascii_text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
-    return re.sub(r"[^A-Za-z0-9]+", "-", ascii_text).strip("-")[:60] or "projekt"
-
-
-def _download(content: bytes, media_type: str, filename: str) -> Response:
-    return Response(
-        content=content,
-        media_type=media_type,
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
 
 
 async def _load_project(repository: ProjectRepositoryDep, project_id: UUID) -> Project:
@@ -134,7 +109,7 @@ async def rename_project(
 async def delete_project(
     project: ProjectRecordDep, repository: ProjectRepositoryDep
 ) -> None:
-    _ensure_idle(project)
+    ensure_idle(project)
     await repository.delete(project.id)
     await storage.delete_folder(f"projects/{project.id}")
     logger.info("project_deleted", project_id=str(project.id))
@@ -151,7 +126,7 @@ async def upload_documents(
     settings: SettingsDep,
     files: Annotated[list[UploadFile], File()],
 ) -> list[DocumentSummary]:
-    _ensure_idle(project)
+    ensure_idle(project)
     existing = await repository.count_documents(project.id)
     if existing + len(files) > settings.MAX_DOCUMENTS_PER_PROJECT:
         raise HTTPException(
@@ -172,14 +147,17 @@ async def upload_documents(
         if content_type not in SUPPORTED_CONTENT_TYPES:
             raise HTTPException(
                 status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                f"{filename}: nur PDF und DOCX werden unterstützt.",
+                f"{filename}: nur PDF, DOCX und GAEB-XML (X83/X84) werden unterstützt.",
             )
         prepared.append((filename, content_type, content))
 
     documents: list[DocumentSummary] = []
     for filename, content_type, content in prepared:
         document_id = uuid4()
-        suffix = ".pdf" if content_type == "application/pdf" else ".docx"
+        suffix = {
+            "application/pdf": ".pdf",
+            GAEB_CONTENT_TYPE: ".xml",
+        }.get(content_type, ".docx")
         key = f"projects/{project.id}/{document_id}{suffix}"
         await storage.save_file(key, content)
         documents.append(
@@ -200,7 +178,7 @@ async def update_document(
     document: DocumentRecordDep,
     repository: ProjectRepositoryDep,
 ) -> Project:
-    _ensure_idle(project)
+    ensure_idle(project)
     changes = data.model_dump(exclude_unset=True)
     if "doc_type" in changes and data.doc_type is not None:
         document.doc_type = data.doc_type.value
@@ -230,7 +208,7 @@ async def delete_document(
     document: DocumentRecordDep,
     repository: ProjectRepositoryDep,
 ) -> None:
-    _ensure_idle(project)
+    ensure_idle(project)
     await repository.delete_document(document)
     await storage.delete_file(document.storage_key)
 
@@ -285,7 +263,7 @@ async def update_discrepancy(
     project: ProjectRecordDep,
     repository: ProjectRepositoryDep,
 ) -> Project:
-    _ensure_idle(project)
+    ensure_idle(project)
     analysis = project_analysis(project)
     if analysis is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Noch keine Analyse vorhanden")
@@ -311,7 +289,7 @@ async def update_discrepancy(
 async def update_questions(
     data: QuestionsUpdate, project: ProjectRecordDep, repository: ProjectRepositoryDep
 ) -> Project:
-    _ensure_idle(project)
+    ensure_idle(project)
     await repository.save_questions(project, data.questions)
     return await _load_project(repository, project.id)
 
@@ -344,8 +322,8 @@ async def export_onepager_docx(
 ) -> Response:
     onepager, _ = await _onepager(project, repository)
     content = await anyio.to_thread.run_sync(exports.onepager_docx, onepager)
-    return _download(
-        content, DOCX_MEDIA_TYPE, f"Projektsteckbrief-{_slug(project.name)}.docx"
+    return download(
+        content, DOCX_MEDIA_TYPE, f"Projektsteckbrief-{slug(project.name)}.docx"
     )
 
 
@@ -355,8 +333,8 @@ async def export_onepager_pdf(
 ) -> Response:
     onepager, _ = await _onepager(project, repository)
     content = await anyio.to_thread.run_sync(exports.onepager_pdf, onepager)
-    return _download(
-        content, "application/pdf", f"Projektsteckbrief-{_slug(project.name)}.pdf"
+    return download(
+        content, "application/pdf", f"Projektsteckbrief-{slug(project.name)}.pdf"
     )
 
 
@@ -371,9 +349,7 @@ async def export_questions_docx(
     content = await anyio.to_thread.run_sync(
         exports.questions_docx, project.name, detail.questions, names
     )
-    return _download(
-        content, DOCX_MEDIA_TYPE, f"Rueckfragen-{_slug(project.name)}.docx"
-    )
+    return download(content, DOCX_MEDIA_TYPE, f"Rueckfragen-{slug(project.name)}.docx")
 
 
 @router.get("/{project_id}/exports/questions.txt", operation_id="export_questions_txt")
@@ -383,8 +359,8 @@ async def export_questions_txt(
     detail = await _load_project(repository, project.id)
     names = document_names(await repository.list_document_records(project.id))
     content = exports.questions_text(project.name, detail.questions, names)
-    return _download(
+    return download(
         content.encode("utf-8"),
         "text/plain; charset=utf-8",
-        f"Rueckfragen-{_slug(project.name)}.txt",
+        f"Rueckfragen-{slug(project.name)}.txt",
     )

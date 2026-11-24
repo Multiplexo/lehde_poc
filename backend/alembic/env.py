@@ -5,12 +5,22 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
 
+from app.persistence.chat.schema.chat_message import ChatMessageRecord
 from app.persistence.feedback.schema.feedback import FeedbackRecord
+from app.persistence.lv.schema.lv_position import LvPositionRecord
 from app.persistence.projects.schema.project import DocumentRecord, ProjectRecord
+from app.persistence.subcontractors.schema.subcontractor import SubcontractorRecord
 from app.services.database import database_url
 
 # Imported so their tables are registered on the metadata.
-REGISTERED_MODELS = (ProjectRecord, DocumentRecord, FeedbackRecord)
+REGISTERED_MODELS = (
+    ProjectRecord,
+    DocumentRecord,
+    FeedbackRecord,
+    LvPositionRecord,
+    ChatMessageRecord,
+    SubcontractorRecord,
+)
 
 target_metadata = SQLModel.metadata
 

@@ -13,6 +13,7 @@ from app.models.documents import (
 )
 from app.services.ai import AIService, UsageCounter, image_part, text_part
 from app.services.pipeline.conversion import PDF_CONTENT_TYPE, render_page_images
+from app.services.pipeline.gaeb import GAEB_CONTENT_TYPE
 from app.services.pipeline.grounding import DocumentIndex
 from app.services.pipeline.prompts import CLASSIFICATION_INSTRUCTIONS
 from app.services.pipeline.schemas import ClassificationResult, PlanSheet
@@ -73,6 +74,16 @@ async def classify_document(
     pages: list[PageText],
     index: DocumentIndex,
 ) -> Classification:
+    if content_type == GAEB_CONTENT_TYPE:
+        # GAEB exchange files are always bills of quantities.
+        return Classification(
+            doc_type=DocumentType.LEISTUNGSVERZEICHNIS,
+            title=filename.rsplit(".", 1)[0],
+            revision=None,
+            document_date=None,
+            confidence=1.0,
+            plans=[],
+        )
     preview = "\n\n".join(
         f"--- Seite {page.number} ---\n{page.text[:PREVIEW_PAGE_CHARACTERS]}"
         for page in pages[:PREVIEW_PAGES]

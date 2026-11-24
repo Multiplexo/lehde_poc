@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from app.models.analysis import ProjectAnalysis, Question
+from app.models.checks import CheckFinding
 from app.models.documents import DocumentSummary
 
 
@@ -20,6 +21,9 @@ class AnalysisStep(StrEnum):
     CLASSIFYING = "classifying"
     EXTRACTING = "extracting"
     COMPARING = "comparing"
+    LV = "lv"
+    CHECKING = "checking"
+    DRAFTING = "drafting"
     DONE = "done"
 
 
@@ -55,6 +59,8 @@ class Project(BaseModel):
     documents: list[DocumentSummary]
     analysis: ProjectAnalysis | None = None
     questions: list[Question] = Field(default_factory=list)
+    checks: list[CheckFinding] = Field(default_factory=list)
+    checks_at: datetime | None = None
 
 
 class QuestionsUpdate(BaseModel):

@@ -11,6 +11,9 @@ class DocumentType(StrEnum):
     BRANDSCHUTZKONZEPT = "brandschutzkonzept"
     BODENGUTACHTEN = "bodengutachten"
     BAUGENEHMIGUNG = "baugenehmigung"
+    LEISTUNGSVERZEICHNIS = "leistungsverzeichnis"
+    VERTRAG = "vertrag"
+    NACHTRAG = "nachtrag"
     SONSTIGES = "sonstiges"
 
 
@@ -20,6 +23,9 @@ DOCUMENT_TYPE_LABELS: dict[DocumentType, str] = {
     DocumentType.BRANDSCHUTZKONZEPT: "Brandschutzkonzept",
     DocumentType.BODENGUTACHTEN: "Bodengutachten",
     DocumentType.BAUGENEHMIGUNG: "Baugenehmigung",
+    DocumentType.LEISTUNGSVERZEICHNIS: "Leistungsverzeichnis",
+    DocumentType.VERTRAG: "Vertrag / Vertragsentwurf",
+    DocumentType.NACHTRAG: "Nachtrag",
     DocumentType.SONSTIGES: "Sonstiges",
 }
 

@@ -436,6 +436,163 @@ def plaene() -> bytes:
     return buffer.getvalue()
 
 
+def vertragsentwurf() -> bytes:
+    return text_pdf(
+        [
+            ("p", f"Bauvorhaben: {PROJECT}"),
+            ("p", "Auftraggeber: Muster Logistik GmbH · Entwurf vom 01.11.2026"),
+            ("h", "§ 1 Vertragsgrundlagen"),
+            (
+                "p",
+                (
+                    "Vertragsbestandteile sind dieser Vertrag, die Baubeschreibung vom "
+                    "15.09.2026 und die VOB/B in der bei Vertragsschluss gültigen Fassung, "
+                    "soweit in diesem Vertrag nichts Abweichendes geregelt ist."
+                ),
+            ),
+            ("h", "§ 2 Vergütung"),
+            (
+                "p",
+                (
+                    "Die Leistungen werden zu einem Pauschalfestpreis vergütet. Der "
+                    "Auftragnehmer hat sich über alle Umstände der Ausführung informiert; "
+                    "Leistungen, die zur vollständigen und funktionsfähigen Herstellung "
+                    "erforderlich sind, sind mit dem Pauschalpreis abgegolten, auch wenn "
+                    "sie in den Unterlagen nicht gesondert beschrieben sind."
+                ),
+            ),
+            ("h", "§ 3 Ausführungsfristen und Vertragsstrafe"),
+            (
+                "p",
+                (
+                    "Die Fertigstellung hat bis zum 30.11.2027 zu erfolgen. Bei "
+                    "Überschreitung zahlt der Auftragnehmer eine Vertragsstrafe von "
+                    "0,5 % der Netto-Auftragssumme je Werktag, insgesamt höchstens 10 % "
+                    "der Netto-Auftragssumme."
+                ),
+            ),
+            ("h", "§ 4 Sicherheiten"),
+            (
+                "p",
+                (
+                    "Der Auftragnehmer stellt eine Vertragserfüllungsbürgschaft in Höhe "
+                    "von 10 % der Netto-Auftragssumme. Als Sicherheit für Mängelansprüche "
+                    "werden 5 % der Schlussrechnungssumme einbehalten."
+                ),
+            ),
+            ("h", "§ 5 Mängelansprüche"),
+            (
+                "p",
+                (
+                    "Die Verjährungsfrist für Mängelansprüche beträgt 5 Jahre und "
+                    "6 Wochen ab Abnahme."
+                ),
+            ),
+            ("h", "§ 6 Zahlung"),
+            (
+                "p",
+                (
+                    "Abschlagszahlungen werden nach Zahlungsplan geleistet und sind "
+                    "30 Kalendertage nach Eingang der prüffähigen Rechnung fällig."
+                ),
+            ),
+        ],
+        "Generalunternehmervertrag (Entwurf)",
+        "Muster Logistik GmbH – Vertragsentwurf",
+    )
+
+
+LV_ITEMS = [
+    (
+        "01",
+        "Baustelleneinrichtung",
+        [
+            ("0010", "Baustelleneinrichtung einrichten und räumen", 1, "psch"),
+            ("0020", "Turmdrehkran vorhalten, Standzeit", 20, "Wo"),
+        ],
+    ),
+    (
+        "02",
+        "Erdarbeiten",
+        [
+            ("0010", "Oberboden abtragen und seitlich lagern, d = 30 cm", 2400, "m2"),
+            ("0020", "Bodenaushub für Einzelfundamente, Bodenklasse 3-4", 380, "m3"),
+            ("0030", "Auffüllung Z 2 (PAK) laden, abfahren und entsorgen", 450, "t"),
+            ("0040", "Planum herstellen, Verdichtung Ev2 >= 45 MN/m2", 1800, "m2"),
+        ],
+    ),
+    (
+        "03",
+        "Betonarbeiten",
+        [
+            ("0010", "Köcherfundament Ortbeton C25/30 für Fertigteilstützen", 22, "St"),
+            ("0020", "Bodenplatte Stahlbeton C30/37, d = 20 cm, Halle", 1500, "m2"),
+        ],
+    ),
+    (
+        "04",
+        "Betonfertigteile",
+        [
+            (
+                "0010",
+                "Fertigteilstütze 50/50 cm, h = 9,00 m, liefern und montieren",
+                22,
+                "St",
+            ),
+            ("0020", "Spannbetonbinder L = 25,00 m, liefern und montieren", 11, "St"),
+            (
+                "0030",
+                "Sandwich-Wandplatte d = 30 cm, liefern und montieren",
+                1520,
+                "m2",
+            ),
+            ("0040", "Hohlplattendecke d = 26,5 cm Bürotrakt", 312, "m2"),
+        ],
+    ),
+    (
+        "05",
+        "Dach",
+        [
+            ("0010", "Trapezblech-Dach mit Dämmung und Abdichtung", 1500, "m2"),
+            ("0020", "RWA-Lichtkuppel 1,20 x 1,80 m mit Öffner", 18, "St"),
+        ],
+    ),
+    (
+        "06",
+        "Tore und Türen",
+        [
+            ("0010", "Sektionaltor 4,00 x 4,50 m, elektrisch", 4, "St"),
+        ],
+    ),
+]
+
+
+def gaeb_lv() -> bytes:
+    """GAEB DA XML 3.3 (X83) with categories and items."""
+    categories = []
+    for number, label, items in LV_ITEMS:
+        item_xml = "".join(
+            f'<Item RNoPart="{oz}"><Qty>{qty}</Qty><QU>{unit}</QU><Description>'
+            f"<CompleteText><DetailTxt><Text><p><span>{text}. Ausführung nach "
+            f"Baubeschreibung.</span></p></Text></DetailTxt><OutlineText><OutlTxt>"
+            f"<TextOutlTxt><p><span>{text}</span></p></TextOutlTxt></OutlTxt>"
+            f"</OutlineText></CompleteText></Description></Item>"
+            for oz, text, qty, unit in items
+        )
+        categories.append(
+            f'<BoQCtgy RNoPart="{number}"><LblTx><p><span>{label}</span></p></LblTx>'
+            f"<BoQBody><Itemlist>{item_xml}</Itemlist></BoQBody></BoQCtgy>"
+        )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<GAEB xmlns="http://www.gaeb.de/GAEB_DA_XML/DA83/3.3">'
+        "<GAEBInfo><Version>3.3</Version></GAEBInfo>"
+        "<Award><DP>83</DP><BoQ><BoQInfo><Name>LV Rohbau Logistikhalle</Name></BoQInfo>"
+        f"<BoQBody>{''.join(categories)}</BoQBody></BoQ></Award></GAEB>"
+    )
+    return xml.encode("utf-8")
+
+
 def main() -> None:
     OUTPUT.mkdir(parents=True, exist_ok=True)
     files = {
@@ -445,6 +602,8 @@ def main() -> None:
         "04_Bodengutachten.pdf": bodengutachten(),
         "05_Baugenehmigung_Scan.pdf": baugenehmigung_scan(),
         "06_Plaene_Entwurf.pdf": plaene(),
+        "07_LV_Rohbau.x83": gaeb_lv(),
+        "08_Vertragsentwurf.pdf": vertragsentwurf(),
     }
     for name, content in files.items():
         (OUTPUT / name).write_bytes(content)

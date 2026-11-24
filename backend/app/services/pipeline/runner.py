@@ -20,7 +20,6 @@ from app.models.analysis import (
     Question,
 )
 from app.models.documents import (
-    DOCUMENT_TYPE_LABELS,
     DocumentStatus,
     DocumentType,
     PageText,
@@ -28,6 +27,7 @@ from app.models.documents import (
     ValueSource,
 )
 from app.models.projects import AnalysisStep, ProjectStatus
+from app.persistence.lv.lv_repository import LvRepository
 from app.persistence.projects.project_repository import (
     ProjectRepository,
     document_pages,
@@ -42,32 +42,14 @@ from app.services.pipeline.consolidate import consolidate
 from app.services.pipeline.conversion import read_document
 from app.services.pipeline.extract import DocumentFindings, extract_findings
 from app.services.pipeline.grounding import DocumentIndex
+from app.services.pipeline.jobs import import_lv, run_check_agents
+from app.services.pipeline.naming import document_names
 from app.services.pipeline.planstand import check_plan_revisions
 from app.services.pipeline.questions import build_questions
 
 logger = structlog.get_logger(__name__)
 
 READ_CONCURRENCY = 2
-
-
-def document_names(records: list[DocumentRecord]) -> dict[UUID, str]:
-    """Readable names for questions: the document type, or the file name."""
-    type_counts: dict[str, int] = {}
-    for record in records:
-        if record.doc_type:
-            type_counts[record.doc_type] = type_counts.get(record.doc_type, 0) + 1
-    names: dict[UUID, str] = {}
-    for record in records:
-        doc_type = DocumentType(record.doc_type) if record.doc_type else None
-        if (
-            doc_type is not None
-            and doc_type not in {DocumentType.SONSTIGES, DocumentType.PLAN}
-            and type_counts[doc_type.value] == 1
-        ):
-            names[record.id] = DOCUMENT_TYPE_LABELS[doc_type]
-        else:
-            names[record.id] = record.title or record.filename
-    return names
 
 
 def plan_register(records: list[DocumentRecord]) -> list[PlanEntry]:
@@ -186,7 +168,7 @@ class AnalysisRun:
         async def done(count: int) -> None:
             await self.progress(
                 AnalysisStep.READING,
-                5 + int(25 * count / total),
+                5 + int(20 * count / total),
                 f"Dokumente lesen ({count}/{total})",
             )
 
@@ -215,7 +197,7 @@ class AnalysisRun:
         async def done(count: int) -> None:
             await self.progress(
                 AnalysisStep.CLASSIFYING,
-                30 + int(20 * count / total),
+                25 + int(15 * count / total),
                 f"Dokumenttypen erkennen ({count}/{total})",
             )
 
@@ -266,7 +248,7 @@ class AnalysisRun:
         async def done(count: int) -> None:
             await self.progress(
                 AnalysisStep.EXTRACTING,
-                50 + int(35 * count / total),
+                40 + int(30 * count / total),
                 f"Fakten mit Fundstellen extrahieren ({count}/{total})",
             )
 
@@ -286,17 +268,33 @@ class AnalysisRun:
 
         ai = AIService(self.settings)
         try:
-            await self.progress(AnalysisStep.CLASSIFYING, 30, "Dokumenttypen erkennen")
+            await self.progress(AnalysisStep.CLASSIFYING, 25, "Dokumenttypen erkennen")
             await self.classify(ai, records)
-            await self.progress(AnalysisStep.EXTRACTING, 50, "Fakten extrahieren")
+            await self.progress(AnalysisStep.EXTRACTING, 40, "Fakten extrahieren")
             findings = await self.extract(ai, records)
             claims: list[Claim] = [claim for item in findings for claim in item.claims]
             references: list[PlanReference] = [
                 reference for item in findings for reference in item.plan_references
             ]
             names = document_names(records)
-            await self.progress(AnalysisStep.COMPARING, 88, "Unterlagen abgleichen")
+            await self.progress(AnalysisStep.COMPARING, 72, "Unterlagen abgleichen")
             consolidation = await consolidate(ai, self.usage, claims, names)
+            await self.progress(AnalysisStep.LV, 78, "LV einlesen und Gewerke zuordnen")
+            async with self.db_lock:
+                await import_lv(
+                    ai,
+                    self.usage,
+                    self.project_id,
+                    records,
+                    self.pages,
+                    self.contents,
+                    LvRepository(self.repository.session),
+                    self.settings,
+                )
+            await self.progress(AnalysisStep.CHECKING, 90, "Prüf-Agenten laufen")
+            check_findings = await run_check_agents(
+                ai, self.usage, records, self.pages, names, self.settings
+            )
         finally:
             await ai.close()
 
@@ -340,6 +338,7 @@ class AnalysisRun:
         )
         async with self.db_lock:
             await self.repository.save_analysis(project, analysis, questions)
+            await self.repository.save_checks(project, check_findings)
             await self.repository.set_progress(
                 self.project_id,
                 ProjectStatus.READY,

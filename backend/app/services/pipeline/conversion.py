@@ -15,6 +15,7 @@ from docx import Document as DocxDocument
 from PIL import Image
 
 from app.models.documents import Box, PageLine, PageText
+from app.services.pipeline.gaeb import GAEB_CONTENT_TYPE, is_gaeb, read_gaeb
 
 logger = structlog.get_logger(__name__)
 
@@ -22,7 +23,7 @@ PDF_CONTENT_TYPE = "application/pdf"
 DOCX_CONTENT_TYPE = (
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 )
-SUPPORTED_CONTENT_TYPES = {PDF_CONTENT_TYPE, DOCX_CONTENT_TYPE}
+SUPPORTED_CONTENT_TYPES = {PDF_CONTENT_TYPE, DOCX_CONTENT_TYPE, GAEB_CONTENT_TYPE}
 OCR_RENDER_SCALE = 2.0
 DOCX_PAGE_CHARACTERS = 3500
 MAX_IMAGE_SIDE = 2000
@@ -33,6 +34,8 @@ def detect_content_type(content: bytes, filename: str) -> str | None:
         return PDF_CONTENT_TYPE
     if content.startswith(b"PK") and filename.lower().endswith(".docx"):
         return DOCX_CONTENT_TYPE
+    if is_gaeb(content, filename):
+        return GAEB_CONTENT_TYPE
     return None
 
 
@@ -172,6 +175,8 @@ def read_document(
         return read_pdf(content, ocr_languages, min_text)
     if content_type == DOCX_CONTENT_TYPE:
         return read_docx(content)
+    if content_type == GAEB_CONTENT_TYPE:
+        return read_gaeb(content)
     raise ValueError("Unsupported content type")
 
 

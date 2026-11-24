@@ -13,6 +13,7 @@ from app.models.analysis import (
     Question,
     Severity,
 )
+from app.models.checks import CheckFinding
 from app.models.documents import (
     DocumentStatus,
     DocumentSummary,
@@ -172,6 +173,8 @@ class ProjectRepository:
             documents=[document_summary(document) for document in documents],
             analysis=project_analysis(record),
             questions=[Question.model_validate(item) for item in record.questions],
+            checks=[CheckFinding.model_validate(item) for item in record.checks],
+            checks_at=record.checks_at,
         )
 
     async def rename(self, record: ProjectRecord, name: str) -> None:
@@ -325,6 +328,15 @@ class ProjectRepository:
         record.updated_at = datetime.now(UTC)
         self.session.add(record)
         await self._commit("project_questions_save_failed", project_id=str(record.id))
+
+    async def save_checks(
+        self, record: ProjectRecord, findings: list[CheckFinding]
+    ) -> None:
+        record.checks = [finding.model_dump(mode="json") for finding in findings]
+        record.checks_at = datetime.now(UTC)
+        record.updated_at = datetime.now(UTC)
+        self.session.add(record)
+        await self._commit("project_checks_save_failed", project_id=str(record.id))
 
     async def mark_interrupted(self) -> int:
         """Fail runs that were active when the process stopped."""
