@@ -18,6 +18,10 @@ class FeedbackModule(StrEnum):
     DISCREPANCIES = "abweichungen"
     QUESTIONS = "rueckfragen"
     ONEPAGER = "steckbrief"
+    LV = "lv"
+    CHECKS = "pruefung"
+    CHAT = "fragen"
+    SUBCONTRACTORS = "subunternehmer"
     OTHER = "sonstiges"
 
 

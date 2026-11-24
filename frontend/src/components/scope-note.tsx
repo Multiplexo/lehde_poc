@@ -1,19 +1,22 @@
 import { Check, Clock } from 'lucide-react'
 
 const included = [
-  'Anfragepaket hochladen, auch gescannte PDFs',
+  'Anfragepaket hochladen, auch Scans und GAEB (X83/X84)',
   'Dokumenttyp und Planstand je Dokument',
   'Kalkulationsrelevante Fakten mit Fundstelle',
   'Widersprüche zwischen den Unterlagen',
-  'Rückfrageliste an Architekt / Bauherr',
-  'Projektsteckbrief für die Übergabe',
+  'LV einlesen und Gewerken zuordnen',
+  'LV-Entwurf aus Funktionalausschreibung',
+  'Prüf-Agenten: Vertrag/VOB, Brandschutz, Baugrund, Nachträge',
+  'Fragen an die Unterlagen mit Quellenangabe',
+  'Subunternehmer je Gewerk und Region, Anfragepakete',
+  'Rückfrageliste und Projektsteckbrief',
 ]
 const later = [
-  'LV-Entwurf aus Funktionalausschreibung',
-  'Prüf-Agenten für VOB und Brandschutznormen',
-  'Vertrags-Q&A über das Vertragswerk',
-  'Subunternehmer-Vorschläge je Gewerk',
-  'Anbindung an Kalkulation, DMS und E-Mail',
+  'Prüfung gegen Normtexte (VOB/DIN-Lizenz klären)',
+  'Mengenermittlung aus CAD/BIM-Plänen',
+  'Anbindung an Kalkulation, DMS und E-Mail-Versand',
+  'Rechte und Rollen, Produktivbetrieb',
 ]
 
 /** Shows the scope cut in every demo, as agreed in the briefing. */
@@ -27,7 +30,7 @@ export function ScopeNote() {
         </ul>
       </div>
       <div>
-        <p className="page-eyebrow">Bewusst später (Stufe 2/3)</p>
+        <p className="page-eyebrow">Nicht im Prototyp</p>
         <ul className="space-y-1.5 text-muted-foreground">
           {later.map((item) => <li key={item} className="flex gap-2"><Clock aria-hidden="true" className="mt-0.5 size-4 shrink-0" />{item}</li>)}
         </ul>

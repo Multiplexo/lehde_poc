@@ -1,10 +1,21 @@
 # Anfrageprüfung – KI-Prototyp für Ausschreibungs- und Projektunterlagen
 
 Klickbarer Prototyp für die Kalkulation eines GU im Fertigteilbau. Ein Anfragepaket
-(bis ca. 20 PDFs/DOCX) wird eingelesen. Der Prototyp erkennt die Dokumenttypen und
-Planstände und zieht kalkulationsrelevante Fakten mit Fundstelle heraus. Er zeigt
-Widersprüche zwischen den Unterlagen und erzeugt daraus eine Rückfrageliste und
-einen Projektsteckbrief für die Übergabe.
+(bis ca. 20 PDFs, DOCX oder GAEB-Dateien) wird eingelesen. Er deckt alle Use Cases
+aus dem Briefing ab:
+
+- Unterlagen-Abgleich und Fakten-Extraktion mit Fundstelle, Planstand-Prüfung
+- LV einlesen (GAEB X83/X84 ohne KI, LV-PDF mit Zitatpflicht) und Gewerken
+  zuordnen (StLB-Leistungsbereiche plus „Betonfertigteile, Eigenleistung“)
+- LV-Entwurf aus einer Funktionalausschreibung: Mengen nur, wenn sie aus belegten
+  Maßen nachrechenbar sind; alles andere ist als Annahme markiert
+- Subunternehmer je Gewerk und Region (PLZ-Bereich), Anfragepaket je Gewerk als
+  Excel-LV-Auszug und Anschreiben
+- Prüf-Agenten für Vertrag/VOB, Brandschutz, Baugrund und Nachträge nach interner
+  Checkliste, mit Empfänger und Folgeaktion
+- Fragen an die Unterlagen („Was schulden wir eigentlich?“), Antworten nur mit
+  belegtem Zitat
+- Rückfrageliste (DOCX/TXT) und Projektsteckbrief (PDF/DOCX)
 
 Der Prototyp ist ein Gesprächsinstrument, kein Produktivsystem: keine Anmeldung,
 keine Rollen, keine Anbindung an Kundensysteme.
@@ -19,9 +30,12 @@ keine Rollen, keine Anbindung an Kundensysteme.
    (`backend/app/models/catalog.py`) und Planverweise, jeweils mit wörtlichem Zitat.
 4. **Belegen:** Jedes Zitat muss im Dokumenttext gefunden werden; Zahlen müssen
    exakt übereinstimmen. Aussagen ohne Fundstelle werden verworfen und gezählt.
-5. **Abgleichen:** Planstände prüft eine feste Regel. Inhaltliche Widersprüche
+5. **LV und Prüfung:** LV-Dokumente werden eingelesen und Gewerken zugeordnet,
+   danach laufen die Prüf-Agenten. Der LV-Entwurf aus der Funktionalbeschreibung
+   wird auf Knopfdruck abgeleitet.
+6. **Abgleichen:** Planstände prüft eine feste Regel. Inhaltliche Widersprüche
    findet das Modell, ausschließlich auf Basis der belegten Aussagen.
-6. **Folgeaktion:** Jede Abweichung hat einen Empfänger und eine Folgeaktion
+7. **Folgeaktion:** Jede Abweichung hat einen Empfänger und eine Folgeaktion
    (Rückfrage, Annahme/Vorbehalt, erledigt). Daraus entstehen die Rückfrageliste
    (DOCX/TXT) und der Steckbrief (PDF/DOCX).
 
@@ -49,7 +63,7 @@ cd frontend && bun install && bun run dev
 ```
 
 Danach [die App](http://localhost:5173) öffnen und das Demo-Paket aus
-`demo/anfragepaket/` hochladen. `demo/erwartung.md` listet, was gefunden werden
+`demo/anfragepaket/` hochladen (inkl. GAEB-LV und Vertragsentwurf). `demo/erwartung.md` listet, was gefunden werden
 muss. Das Paket lässt sich neu erzeugen mit
 `uv --directory backend run python -m scripts.create_demo_package`.
 

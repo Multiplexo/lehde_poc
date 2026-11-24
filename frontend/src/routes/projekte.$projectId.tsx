@@ -1,6 +1,9 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { AlertTriangle, ArrowLeft, RefreshCw, Trash2 } from 'lucide-react'
 import { AnalysisProgress } from '@/components/project/analysis-progress'
+import { ChatTab } from '@/components/project/chat-tab'
+import { ChecksTab } from '@/components/project/checks-tab'
+import { LvTab } from '@/components/project/lv-tab'
 import { DiscrepanciesTab } from '@/components/project/discrepancies-tab'
 import { DocumentsTab } from '@/components/project/documents-tab'
 import { FactsTab } from '@/components/project/facts-tab'
@@ -14,7 +17,7 @@ import { useDeleteProject, useProject, useStartAnalysis } from '@/hooks/use-proj
 import type { Project } from '@/lib/api'
 import { formatDate } from '@/lib/labels'
 
-const tabs = ['abweichungen', 'fakten', 'rueckfragen', 'steckbrief', 'dokumente'] as const
+const tabs = ['abweichungen', 'fakten', 'lv', 'pruefung', 'fragen', 'rueckfragen', 'steckbrief', 'dokumente'] as const
 type Tab = (typeof tabs)[number]
 
 export const Route = createFileRoute('/projekte/$projectId')({
@@ -69,6 +72,7 @@ function ProjectPage() {
   const analysis = project.analysis
   const open = analysis?.discrepancies.filter((item) => item.status !== 'done') ?? []
   const questionCount = project.questions.filter((item) => item.included).length
+  const criticalChecks = project.checks.filter((item) => item.status === 'critical').length
   const select = (value: Tab) => void navigate({ search: { tab: value }, replace: true })
   return (
     <SourceProvider projectId={project.id} documents={project.documents}>
@@ -87,12 +91,18 @@ function ProjectPage() {
             <TabsList className="h-auto flex-wrap">
               <TabsTrigger value="abweichungen">Abweichungen ({open.length})</TabsTrigger>
               <TabsTrigger value="fakten">Fakten</TabsTrigger>
+              <TabsTrigger value="lv">LV & Gewerke</TabsTrigger>
+              <TabsTrigger value="pruefung">Prüfung{criticalChecks ? ` (${criticalChecks} kritisch)` : ''}</TabsTrigger>
+              <TabsTrigger value="fragen">Fragen an Unterlagen</TabsTrigger>
               <TabsTrigger value="rueckfragen">Rückfragen ({questionCount})</TabsTrigger>
               <TabsTrigger value="steckbrief">Projektsteckbrief</TabsTrigger>
               <TabsTrigger value="dokumente">Dokumente ({project.documents.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="abweichungen" className="pt-4"><DiscrepanciesTab project={project} onShowQuestions={() => select('rueckfragen')} /></TabsContent>
             <TabsContent value="fakten" className="pt-4"><FactsTab analysis={analysis} /></TabsContent>
+            <TabsContent value="lv" className="pt-4"><LvTab project={project} /></TabsContent>
+            <TabsContent value="pruefung" className="pt-4"><ChecksTab project={project} /></TabsContent>
+            <TabsContent value="fragen" className="pt-4"><ChatTab project={project} /></TabsContent>
             <TabsContent value="rueckfragen" className="pt-4"><QuestionsTab project={project} /></TabsContent>
             <TabsContent value="steckbrief" className="pt-4"><OnepagerTab project={project} /></TabsContent>
             <TabsContent value="dokumente" className="pt-4"><DocumentsTab project={project} /></TabsContent>

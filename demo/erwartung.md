@@ -24,3 +24,23 @@ Widersprüche und dient als erstes Golden Set, bis echte Kundenunterlagen vorlie
 - Brandschutz: R 30, ein Brandabschnitt < 1.800 m², kein Sprinkler, RWA 2 %
 
 Die Baugenehmigung liegt nur als Bild vor (OCR-Test).
+
+## LV und Funktionalausschreibung
+
+- `07_LV_Rohbau.x83` (GAEB): 15 Positionen in 6 Titeln, ohne KI eingelesen.
+  Erwartete Gewerke: Baustelleneinrichtung, Erdarbeiten (inkl. Entsorgung Z 2),
+  Ortbeton (Köcherfundamente, Bodenplatte), Betonfertigteile (Eigenleistung),
+  Dachabdichtung (inkl. RWA-Lichtkuppeln), Tore.
+- Im LV fehlt eine Wasserhaltung, obwohl das Bodengutachten sie für Gründungen
+  tiefer als 1,50 m fordert (Prüfung Baugrund).
+- Der LV-Entwurf aus der Baubeschreibung muss u. a. die Hallenfläche
+  60 × 25 = 1.500 m² nachrechenbar ableiten und Positionen ohne Beleg als Annahme
+  markieren.
+
+## Vertragsprüfung (`08_Vertragsentwurf.pdf`)
+
+- Vertragsstrafe 0,5 % je Werktag, max. 10 % → kritisch (Schwelle 0,3 % / 5 %)
+- Pauschalfestpreis mit Vollständigkeitsklausel → kritisch bei Funktionalausschreibung
+- Vertragserfüllungsbürgschaft 10 % → Hinweis
+- Mängelansprüche 5 Jahre und 6 Wochen → Hinweis (VOB/B-Regelfrist 4 Jahre)
+- Kein Nachtrag im Paket → Prüfbereich Nachträge „nicht relevant“

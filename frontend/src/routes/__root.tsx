@@ -26,6 +26,7 @@ function RootLayout() {
           </Link>
           <nav aria-label="Hauptnavigation" className="flex items-center gap-6 text-[15px]">
             <Link to="/" activeOptions={{ exact: true }} className="py-1 text-muted-foreground hover:text-foreground data-[status=active]:font-semibold data-[status=active]:text-foreground">Anfragepakete</Link>
+            <Link to="/subunternehmer" className="py-1 text-muted-foreground hover:text-foreground data-[status=active]:font-semibold data-[status=active]:text-foreground">Subunternehmer</Link>
             <Link to="/feedback" className="py-1 text-muted-foreground hover:text-foreground data-[status=active]:font-semibold data-[status=active]:text-foreground">Feedback</Link>
           </nav>
           <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-xs text-brand-accent" title="Gesprächsinstrument zum Schärfen der Anforderungen, kein Produktivsystem">

@@ -1,10 +1,10 @@
 // Types mirror the backend Pydantic models (backend/app/models).
 
-export type DocumentType = 'plan' | 'baubeschreibung' | 'brandschutzkonzept' | 'bodengutachten' | 'baugenehmigung' | 'sonstiges'
+export type DocumentType = 'plan' | 'baubeschreibung' | 'brandschutzkonzept' | 'bodengutachten' | 'baugenehmigung' | 'leistungsverzeichnis' | 'vertrag' | 'nachtrag' | 'sonstiges'
 export type DocumentStatus = 'uploaded' | 'read' | 'classified' | 'failed'
 export type ValueSource = 'ai' | 'manual'
 export type ProjectStatus = 'draft' | 'processing' | 'ready' | 'failed'
-export type AnalysisStep = 'reading' | 'classifying' | 'extracting' | 'comparing' | 'done'
+export type AnalysisStep = 'reading' | 'classifying' | 'extracting' | 'comparing' | 'lv' | 'checking' | 'drafting' | 'done'
 export type FactStatus = 'found' | 'conflict' | 'not_found'
 export type Severity = 'red' | 'yellow'
 export type Recipient = 'architekt' | 'bauherr' | 'kalkulation'
@@ -50,6 +50,7 @@ export interface Project {
   id: string; name: string; created_at: string; updated_at: string; status: ProjectStatus
   progress: { step: AnalysisStep | null; percent: number; message: string | null }; error: string | null
   documents: DocumentSummary[]; analysis: ProjectAnalysis | null; questions: Question[]
+  checks: CheckFinding[]; checks_at: string | null
 }
 export interface ProjectListItem {
   id: string; name: string; created_at: string; updated_at: string; status: ProjectStatus
@@ -70,6 +71,36 @@ export interface FeedbackCreate {
 }
 export interface DocumentUpdate { doc_type?: DocumentType; title?: string | null; revision?: string | null; document_date?: string | null }
 export interface DiscrepancyUpdate { status?: DiscrepancyStatus; recipient?: Recipient; question?: string; note?: string | null }
+
+export type CheckArea = 'vertrag' | 'brandschutz' | 'baugrund' | 'nachtrag'
+export type CheckStatus = 'ok' | 'note' | 'critical' | 'missing' | 'not_applicable'
+export interface CheckFinding {
+  rule_id: string; area: CheckArea; title: string; status: CheckStatus; finding: string; sources: SourceRef[]
+  recipient: Recipient; action: string; question: string | null
+}
+
+export type LvOrigin = 'gaeb' | 'document' | 'draft' | 'manual'
+export interface LvPosition {
+  id: string; project_id: string; origin: LvOrigin; sort_index: number; oz: string | null; short_text: string; long_text: string | null
+  quantity: number | null; unit: string | null; quantity_formula: string | null; trade_code: string | null; trade_source: ValueSource | null
+  trade_confidence: number | null; source: SourceRef | null; assumption: string | null; included: boolean
+}
+export interface LvPositionUpdate {
+  oz?: string | null; short_text?: string; long_text?: string | null; quantity?: number | null; unit?: string | null; trade_code?: string | null; included?: boolean
+}
+export interface SubcontractorSuggestion { subcontractor_id: string; name: string; city: string | null; postal_code: string | null; email: string | null; reason: string }
+export interface TradeSummary {
+  code: string; label: string; own_work: boolean; position_count: number; draft_count: number; assumption_count: number; suggestions: SubcontractorSuggestion[]
+}
+export interface LvOverview { positions: LvPosition[]; trades: TradeSummary[]; project_postal_code: string | null }
+export interface Trade { code: string; label: string; hint: string; own_work: boolean }
+
+export interface ChatMessage { id: string; project_id: string; created_at: string; role: 'user' | 'assistant'; content: string; sources: SourceRef[]; unsupported: boolean }
+
+export interface SubcontractorData {
+  name: string; trade_codes: string[]; postal_code: string | null; city: string | null; contact: string | null; email: string | null; phone: string | null; note: string | null
+}
+export interface Subcontractor extends SubcontractorData { id: string; created_at: string }
 
 export const API_BASE = '/api'
 
@@ -122,7 +153,34 @@ export const api = {
   getOnepager: (projectId: string) => request<Onepager>(`/projects/${projectId}/onepager`),
   listFeedback: () => request<Feedback[]>('/feedback'),
   createFeedback: (data: FeedbackCreate) => request<Feedback>('/feedback', json('POST', data)),
+  getLv: (projectId: string) => request<LvOverview>(`/projects/${projectId}/lv`),
+  importLv: (projectId: string) => request<Project>(`/projects/${projectId}/lv/import`, { method: 'POST' }),
+  draftLv: (projectId: string) => request<Project>(`/projects/${projectId}/lv/draft`, { method: 'POST' }),
+  createLvPosition: (projectId: string, data: LvPositionUpdate & { short_text: string }) =>
+    request<LvPosition>(`/projects/${projectId}/lv/positions`, json('POST', data)),
+  updateLvPosition: (projectId: string, positionId: string, data: LvPositionUpdate) =>
+    request<LvPosition>(`/projects/${projectId}/lv/positions/${positionId}`, json('PATCH', data)),
+  deleteLvPosition: (projectId: string, positionId: string) => request<void>(`/projects/${projectId}/lv/positions/${positionId}`, { method: 'DELETE' }),
+  listTrades: () => request<Trade[]>('/trades'),
+  runChecks: (projectId: string) => request<Project>(`/projects/${projectId}/checks`, { method: 'POST' }),
+  listChat: (projectId: string) => request<ChatMessage[]>(`/projects/${projectId}/chat`),
+  ask: (projectId: string, question: string) => request<ChatMessage[]>(`/projects/${projectId}/chat`, json('POST', { question })),
+  clearChat: (projectId: string) => request<void>(`/projects/${projectId}/chat`, { method: 'DELETE' }),
+  listSubcontractors: () => request<Subcontractor[]>('/subcontractors'),
+  createSubcontractor: (data: SubcontractorData) => request<Subcontractor>('/subcontractors', json('POST', data)),
+  updateSubcontractor: (id: string, data: SubcontractorData) => request<Subcontractor>(`/subcontractors/${id}`, json('PUT', data)),
+  deleteSubcontractor: (id: string) => request<void>(`/subcontractors/${id}`, { method: 'DELETE' }),
+  importSubcontractors: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return request<{ created: number; skipped: string[] }>('/subcontractors/import', { method: 'POST', body: form })
+  },
 }
+
+export const lvExportUrl = (projectId: string, trade?: string) =>
+  `${API_BASE}/projects/${projectId}/lv/export.xlsx${trade ? `?trade=${encodeURIComponent(trade)}` : ''}`
+export const requestLetterUrl = (projectId: string, trade: string, subcontractorId?: string) =>
+  `${API_BASE}/projects/${projectId}/lv/requests/${encodeURIComponent(trade)}.docx${subcontractorId ? `?subcontractor_id=${subcontractorId}` : ''}`
 
 export const documentFileUrl = (projectId: string, documentId: string) => `${API_BASE}/projects/${projectId}/documents/${documentId}/file`
 export const exportUrl = (projectId: string, file: 'onepager.pdf' | 'onepager.docx' | 'questions.docx' | 'questions.txt') =>

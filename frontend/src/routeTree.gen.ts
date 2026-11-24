@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FeedbackRouteImport } from './routes/feedback'
+import { Route as SubunternehmerRouteImport } from './routes/subunternehmer'
 import { Route as ProjekteProjectIdRouteImport } from './routes/projekte.$projectId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const FeedbackRoute = FeedbackRouteImport.update({
   path: '/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SubunternehmerRoute = SubunternehmerRouteImport.update({
+  id: '/subunternehmer',
+  path: '/subunternehmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjekteProjectIdRoute = ProjekteProjectIdRouteImport.update({
   id: '/projekte/$projectId',
   path: '/projekte/$projectId',
@@ -32,30 +38,35 @@ const ProjekteProjectIdRoute = ProjekteProjectIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/feedback': typeof FeedbackRoute
+  '/subunternehmer': typeof SubunternehmerRoute
   '/projekte/$projectId': typeof ProjekteProjectIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/feedback': typeof FeedbackRoute
+  '/subunternehmer': typeof SubunternehmerRoute
   '/projekte/$projectId': typeof ProjekteProjectIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/feedback': typeof FeedbackRoute
+  '/subunternehmer': typeof SubunternehmerRoute
   '/projekte/$projectId': typeof ProjekteProjectIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/feedback' | '/projekte/$projectId'
+  fullPaths: '/' | '/feedback' | '/subunternehmer' | '/projekte/$projectId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/feedback' | '/projekte/$projectId'
-  id: '__root__' | '/' | '/feedback' | '/projekte/$projectId'
+  to: '/' | '/feedback' | '/subunternehmer' | '/projekte/$projectId'
+  id:
+    '__root__' | '/' | '/feedback' | '/subunternehmer' | '/projekte/$projectId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FeedbackRoute: typeof FeedbackRoute
+  SubunternehmerRoute: typeof SubunternehmerRoute
   ProjekteProjectIdRoute: typeof ProjekteProjectIdRoute
 }
 
@@ -75,6 +86,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/subunternehmer': {
+      id: '/subunternehmer'
+      path: '/subunternehmer'
+      fullPath: '/subunternehmer'
+      preLoaderRoute: typeof SubunternehmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projekte/$projectId': {
       id: '/projekte/$projectId'
       path: '/projekte/$projectId'
@@ -88,6 +106,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FeedbackRoute: FeedbackRoute,
+  SubunternehmerRoute: SubunternehmerRoute,
   ProjekteProjectIdRoute: ProjekteProjectIdRoute,
 }
 export const routeTree = rootRouteImport

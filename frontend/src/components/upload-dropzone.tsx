@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { formatBytes } from '@/lib/labels'
 import { cn } from '@/lib/utils'
 
-const ACCEPTED = ['.pdf', '.docx']
+const ACCEPTED = ['.pdf', '.docx', '.x81', '.x83', '.x84', '.x86', '.xml']
 
 function accepted(file: File): boolean {
   return ACCEPTED.some((suffix) => file.name.toLowerCase().endsWith(suffix))
@@ -41,7 +41,7 @@ export function UploadDropzone({ files, onChange, disabled, maxFiles }: {
           dragging ? 'border-brand bg-accent' : 'border-input bg-muted/40', disabled && 'opacity-60')}>
         <FileUp aria-hidden="true" className="size-8 text-muted-foreground" />
         <p className="text-sm font-medium">Unterlagen hierher ziehen</p>
-        <p className="text-xs text-muted-foreground">PDF oder DOCX, bis zu {maxFiles} Dokumente: Pläne, Baubeschreibung, Brandschutzkonzept, Bodengutachten, Baugenehmigung …</p>
+        <p className="text-xs text-muted-foreground">PDF, DOCX oder GAEB (X83/X84), bis zu {maxFiles} Dokumente: Pläne, Baubeschreibung, LV, Vertrag, Gutachten, Baugenehmigung …</p>
         <input ref={input} id={id} type="file" multiple accept={ACCEPTED.join(',')} className="sr-only" disabled={disabled}
           onChange={(event) => { add(event.target.files); event.target.value = '' }} />
         <Button type="button" size="sm" variant="outline" disabled={disabled} onClick={() => input.current?.click()}>Dateien auswählen</Button>

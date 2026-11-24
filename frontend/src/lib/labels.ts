@@ -1,4 +1,4 @@
-import type { AnalysisStep, DiscrepancyStatus, DocumentType, FeedbackKind, ProjectStatus, Recipient, Severity } from './api'
+import type { AnalysisStep, CheckArea, CheckStatus, DiscrepancyStatus, DocumentType, FeedbackKind, LvOrigin, ProjectStatus, Recipient, Severity } from './api'
 
 export const documentTypeLabels: Record<DocumentType, string> = {
   plan: 'Plan',
@@ -6,6 +6,9 @@ export const documentTypeLabels: Record<DocumentType, string> = {
   brandschutzkonzept: 'Brandschutzkonzept',
   bodengutachten: 'Bodengutachten',
   baugenehmigung: 'Baugenehmigung',
+  leistungsverzeichnis: 'Leistungsverzeichnis',
+  vertrag: 'Vertrag / Vertragsentwurf',
+  nachtrag: 'Nachtrag',
   sonstiges: 'Sonstiges',
 }
 export const documentTypes = Object.keys(documentTypeLabels) as DocumentType[]
@@ -22,9 +25,38 @@ export const stepLabels: Record<AnalysisStep, string> = {
   classifying: 'Dokumenttypen und Planstände erkennen',
   extracting: 'Fakten mit Fundstelle extrahieren',
   comparing: 'Unterlagen abgleichen',
+  lv: 'LV einlesen, Gewerke zuordnen',
+  checking: 'Prüf-Agenten',
+  drafting: 'LV-Entwurf ableiten',
   done: 'Fertig',
 }
-export const analysisSteps: AnalysisStep[] = ['reading', 'classifying', 'extracting', 'comparing']
+export const analysisSteps: AnalysisStep[] = ['reading', 'classifying', 'extracting', 'comparing', 'lv', 'checking']
+
+export const checkAreaLabels: Record<CheckArea, string> = {
+  vertrag: 'Vertrag / VOB',
+  brandschutz: 'Brandschutz',
+  baugrund: 'Baugrund',
+  nachtrag: 'Nachträge',
+}
+export const checkStatusLabels: Record<CheckStatus, string> = {
+  critical: 'Kritisch',
+  note: 'Hinweis',
+  missing: 'Nicht geregelt',
+  ok: 'In Ordnung',
+  not_applicable: 'Nicht relevant',
+}
+
+export const lvOriginLabels: Record<LvOrigin, string> = {
+  gaeb: 'GAEB',
+  document: 'aus LV-Dokument',
+  draft: 'Entwurf',
+  manual: 'manuell',
+}
+
+export function formatQuantity(value: number | null): string {
+  if (value === null) return '–'
+  return new Intl.NumberFormat('de-DE', { maximumFractionDigits: 3 }).format(value)
+}
 
 export const recipientLabels: Record<Recipient, string> = {
   architekt: 'Architekt / Planer',
@@ -52,6 +84,10 @@ export const moduleLabels: Record<string, string> = {
   abweichungen: 'Abweichungen',
   rueckfragen: 'Rückfragen',
   steckbrief: 'Steckbrief',
+  lv: 'LV & Gewerke',
+  pruefung: 'Prüfung',
+  fragen: 'Fragen an Unterlagen',
+  subunternehmer: 'Subunternehmer',
   sonstiges: 'Sonstiges',
 }
 

@@ -79,7 +79,7 @@ Aufgaben:
 FEEDBACK_TRIAGE_INSTRUCTIONS = """\
 Du sortierst Feedback zu einem Software-Prototyp, der Anfrageunterlagen von
 Bauprojekten auswertet (Upload, Dokumente, Fakten, Abweichungen, Rückfragen,
-Steckbrief).
+Steckbrief, LV und Gewerke, Prüfung, Fragen an Unterlagen, Subunternehmer).
 
 - kind: "bug" (etwas funktioniert nicht), "feature" (Wunsch) oder "question".
 - module: betroffener Bereich.

@@ -97,6 +97,10 @@ class FeedbackTriageResult(_Strict):
         "abweichungen",
         "rueckfragen",
         "steckbrief",
+        "lv",
+        "pruefung",
+        "fragen",
+        "subunternehmer",
         "sonstiges",
     ]
     summary: str
