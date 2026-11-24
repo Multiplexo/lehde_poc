@@ -30,11 +30,11 @@ keine Rollen, keine Anbindung an Kundensysteme.
    (`backend/app/models/catalog.py`) und Planverweise, jeweils mit wörtlichem Zitat.
 4. **Belegen:** Jedes Zitat muss im Dokumenttext gefunden werden; Zahlen müssen
    exakt übereinstimmen. Aussagen ohne Fundstelle werden verworfen und gezählt.
-5. **LV und Prüfung:** LV-Dokumente werden eingelesen und Gewerken zugeordnet,
+5. **Abgleichen:** Planstände prüft eine feste Regel. Inhaltliche Widersprüche
+   findet das Modell, ausschließlich auf Basis der belegten Aussagen.
+6. **LV und Prüfung:** LV-Dokumente werden eingelesen und Gewerken zugeordnet,
    danach laufen die Prüf-Agenten. Der LV-Entwurf aus der Funktionalbeschreibung
    wird auf Knopfdruck abgeleitet.
-6. **Abgleichen:** Planstände prüft eine feste Regel. Inhaltliche Widersprüche
-   findet das Modell, ausschließlich auf Basis der belegten Aussagen.
 7. **Folgeaktion:** Jede Abweichung hat einen Empfänger und eine Folgeaktion
    (Rückfrage, Annahme/Vorbehalt, erledigt). Daraus entstehen die Rückfrageliste
    (DOCX/TXT) und der Steckbrief (PDF/DOCX).
