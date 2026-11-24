@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--brand-font);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
+    --color-brand-accent: var(--brand-accent);
+    --color-ok: var(--ok);
+    --color-warn: var(--warn);
+    --color-critical: var(--critical);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* Kunden-Theme: placeholder until the customer's corporate design arrives.
+   Concrete grey, dark green and an ochre accent as neutral precast look. */
+:root {
+    --brand-font: 'Inter Variable', system-ui, sans-serif;
+    --brand: #1f3a2e;
+    --brand-foreground: #f4f1ea;
+    --brand-accent: #e8b84a;
+
+    --background: #f5f6f4;
+    --foreground: #1c2420;
+    --card: #ffffff;
+    --card-foreground: #1c2420;
+    --popover: #ffffff;
+    --popover-foreground: #1c2420;
+    --primary: #1f3a2e;
+    --primary-foreground: #ffffff;
+    --secondary: #eceee9;
+    --secondary-foreground: #1c2420;
+    --muted: #eceee9;
+    --muted-foreground: #5d6862;
+    --accent: #e7ece8;
+    --accent-foreground: #1c2420;
+    --destructive: #b42318;
+    --border: #dde1dc;
+    --input: #cfd5cf;
+    --ring: #3f6b57;
+    --radius: 0.5rem;
+
+    --ok: #2f7a4f;
+    --warn: #b7791f;
+    --critical: #b42318;
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    line-height: 1.5;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: light;
+    scroll-padding-top: 5rem;
+  }
+  h1, h2, h3 { text-wrap: balance; }
+  button, a, input, select, textarea { touch-action: manipulation; }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  select { background-color: var(--card); color: var(--foreground); }
+}
+
+@layer components {
+  .page-eyebrow {
+    @apply mb-1 text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase;
+  }
+  .panel {
+    @apply rounded-xl border bg-card;
+  }
+  .quote {
+    @apply border-l-2 border-brand-accent bg-muted/60 px-3 py-1.5 text-sm italic text-foreground/90;
+  }
+  [data-slot="table"] { font-variant-numeric: tabular-nums; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

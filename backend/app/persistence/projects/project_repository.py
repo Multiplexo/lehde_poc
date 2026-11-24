@@ -99,12 +99,15 @@ class ProjectRepository:
 
     async def list_items(self) -> list[ProjectListItem]:
         counts = (
-            select(DocumentRecord.project_id, func.count())
+            select(
+                col(DocumentRecord.project_id).label("project_id"),
+                func.count().label("document_count"),
+            )
             .group_by(col(DocumentRecord.project_id))
             .subquery()
         )
         statement = (
-            select(ProjectRecord, counts.c[1])
+            select(ProjectRecord, counts.c.document_count)
             .join(counts, counts.c.project_id == ProjectRecord.id, isouter=True)
             .order_by(col(ProjectRecord.created_at).desc())
         )

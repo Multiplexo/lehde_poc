@@ -47,8 +47,16 @@ def _stable_id(*parts: str) -> str:
     return f"p-{digest}"
 
 
+def _index(revision: str | None) -> str:
+    """Readable revision: "B" becomes "Index B", "Rev. 03" stays as written."""
+    text = (revision or "").strip()
+    if not text:
+        return "ohne Index"
+    return f"Index {text}" if _SHORT_REVISION.match(text.upper()) else text
+
+
 def _plan_label(number: str, revision: str | None) -> str:
-    return f"Plan {number}, Index {revision}" if revision else f"Plan {number}"
+    return f"Plan {number}, {_index(revision)}" if revision else f"Plan {number}"
 
 
 def check_plan_revisions(
@@ -96,8 +104,8 @@ def check_plan_revisions(
                 ),
                 recipient=Recipient.ARCHITEKT,
                 question=(
-                    f"Plan {first.plan_number} liegt uns mit Index {first.revision} "
-                    f"und Index {second.revision} vor. Welcher Planstand ist "
+                    f"Plan {first.plan_number} liegt uns mit {_index(first.revision)} "
+                    f"und {_index(second.revision)} vor. Welcher Planstand ist "
                     "für die Angebotsbearbeitung verbindlich?"
                 ),
             )
@@ -158,8 +166,8 @@ def check_plan_revisions(
                 topic="planstand",
                 title=f"Planstand {reference.plan_number} abweichend",
                 explanation=(
-                    f"{document_name} bezieht sich auf Index {reference.revision}, "
-                    f"im Paket liegt der Plan mit Index {entry.revision}."
+                    f"{document_name} bezieht sich auf {_index(reference.revision)}, "
+                    f"im Paket liegt der Plan mit {_index(entry.revision)}."
                 ),
                 severity=Severity.RED,
                 side_a=DiscrepancySide(
@@ -175,8 +183,8 @@ def check_plan_revisions(
                 recipient=Recipient.ARCHITEKT,
                 question=(
                     f"{document_name} bezieht sich auf Plan {reference.plan_number} "
-                    f"Index {reference.revision}, beigefügt ist Index "
-                    f"{entry.revision}. Welcher Planstand gilt, und wird "
+                    f"{_index(reference.revision)}, beigefügt ist "
+                    f"{_index(entry.revision)}. Welcher Planstand gilt, und wird "
                     f"{document_name} auf den aktuellen Stand fortgeschrieben?"
                 ),
             )
@@ -222,8 +230,8 @@ def check_plan_revisions(
                 ),
                 recipient=Recipient.ARCHITEKT,
                 question=(
-                    f"{name_a} nennt für Plan {first.plan_number} Index "
-                    f"{first.revision}, {name_b} Index {other.revision}. Welcher "
+                    f"{name_a} nennt für Plan {first.plan_number} "
+                    f"{_index(first.revision)}, {name_b} {_index(other.revision)}. Welcher "
                     "Planstand ist verbindlich?"
                 ),
             )
